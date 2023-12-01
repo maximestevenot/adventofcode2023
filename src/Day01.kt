@@ -1,11 +1,13 @@
-fun main() {
-    fun part1(input: List<String>): Long {
+import common.Day
+
+class Day01 : Day("01") {
+    override fun part1(input: List<String>): Int {
         return input
             .map { it.filter { c -> c.isDigit() } }
-            .sumOf { "${it.first()}${it.last()}".toLong() }
+            .sumOf { "${it.first()}${it.last()}".toInt() }
     }
 
-    fun part2(input: List<String>): Int {
+    override fun part2(input: List<String>): Int {
         return input.map { string ->
             string.windowed(5, 1, true) {
                 when {
@@ -26,8 +28,8 @@ fun main() {
         }.sumOf { "${it.first()}${it.last()}".toInt() }
     }
 
-    val input = readInput("Day01")
-    part1(input).println()
-    "----".println()
-    part2(input).println()
+}
+
+fun main() {
+    Day01().run()
 }
