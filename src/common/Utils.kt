@@ -3,14 +3,23 @@ package common
 import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 import kotlin.io.path.readLines
+import kotlin.system.exitProcess
 
 fun getPath(name: String) = Path("src/inputs/$name.txt")
 
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(name: String) = getPath(name).readLines()
+fun readInput(name: String): List<String> {
+    val path = getPath(name)
+    if (!path.exists()) {
+        println {"Input file not found".bold.red}
+        exitProcess(1)
+    }
+    return path.readLines()
+}
 
 /**
  * Converts string to md5 hash.
