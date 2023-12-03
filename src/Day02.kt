@@ -8,31 +8,41 @@ class Day02 : Day("02") {
             .sumOf { it.first }
     }
 
-    private fun isSetPossible(set: List<Pair<String, Int>>): Boolean {
-        return set.all {
-            when (it.first) {
-                "red" -> it.second <= 12
-                "green" -> it.second <= 13
-                "blue" -> it.second <= 14
-                else -> throw Exception("Unknown color")
+    override fun part2(input: List<String>): Int {
+        return parseGames(input)
+            .map { game ->
+                game.first to toPairs(game.second.split(",", ";"))
+                    .groupBy { it.first }
+                    .map { it.value.maxBy { it.second } }
+                    .map { it.second }.reduce(Int::times)
             }
-        }
+            .map { it.second }
+            .reduce(Int::plus)
     }
 
-    private fun parseGames(input: List<String>) = input
-        .map { it.split(":") }
-        .map { it[0].replace("Game", "").trim().toInt() to it[1].trim() }
+    companion object {
+        private fun parseGames(input: List<String>) = input
+            .map { it.split(":") }
+            .map { it[0].replace("Game", "").trim().toInt() to it[1].trim() }
 
-    private fun parseResults(results: String) = results
-        .split(";")
-        .map {
-            it.split(",")
-                .map { it.trim().split(" ") }
-                .map { it[1] to it[0].toInt() }
+        private fun parseResults(results: String) = results
+            .split(";")
+            .map { toPairs(it.split(",")) }
+
+        private fun toPairs(input: List<String>) = input
+            .map { it.trim().split(" ") }
+            .map { it[1] to it[0].toInt() }
+
+        private fun isSetPossible(set: List<Pair<String, Int>>): Boolean {
+            return set.all {
+                when (it.first) {
+                    "red" -> it.second <= 12
+                    "green" -> it.second <= 13
+                    "blue" -> it.second <= 14
+                    else -> throw Exception("Unknown color")
+                }
+            }
         }
-
-    override fun part2(input: List<String>): Int {
-        return 0;
     }
 
 }
