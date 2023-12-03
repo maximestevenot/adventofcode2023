@@ -1,14 +1,15 @@
 import common.Day
 
 typealias Matrix = List<List<Char>>
-typealias Number = Pair<Coordinates, Int>
+typealias Number = Pair<Coordinates, String>
 
 data class Coordinates(val x: Int, val y: Int)
+
 class Day03 : Day("03") {
 
     override fun part1(input: List<String>): Int {
         val matrix = getMatrix(input)
-        return getNumbers(matrix)
+        return getNumbersAndStars(matrix).first
             .filter { nb ->
                 neighbours(matrix, nb)
                     .any {
@@ -16,18 +17,31 @@ class Day03 : Day("03") {
                         !c.isDigit() && c != '.'
                     }
             }
-            .sumOf { it.second }
+            .sumOf { it.second.toInt() }
     }
 
-
     override fun part2(input: List<String>): Int {
-        return 0
+        val matrix = getMatrix(input)
+        val (numbers, stars) = getNumbersAndStars(matrix)
+        return stars
+            .associateWith { star ->
+                numbers.filter { nb ->
+                    neighbours(matrix, nb).any { it == star }
+                }
+            }
+            .filter { it.value.size == 2 }
+            .values
+            .sumOf { it.map { nb -> nb.second.toInt() }.reduce(Int::times) }
     }
 
     companion object {
         private fun getMatrix(input: List<String>) = input.map { it.toList() }
-        private fun getNumbers(matrix: Matrix): MutableList<Number> {
+
+        private fun getNumbersAndStars(matrix: Matrix):
+                Pair<MutableList<Number>, MutableList<Coordinates>> {
+
             val numbers = mutableListOf<Number>()
+            val stars = mutableListOf<Coordinates>()
             for (y in matrix.indices) {
                 var x = 0
                 while (x < matrix[y].size) {
@@ -39,18 +53,21 @@ class Day03 : Day("03") {
                             nb += matrix[y][xCursor]
                             xCursor++
                         }
-                        numbers.add(Coordinates(x, y) to nb.toInt())
+                        numbers.add(Coordinates(x, y) to nb)
                         x = xCursor
+                    } else if (cell == '*') {
+                        stars.add(Coordinates(x, y))
+                        x++
                     } else {
                         x++
                     }
                 }
             }
-            return numbers
+            return numbers to stars
         }
 
         private fun neighbours(matrix: Matrix, nb: Number): List<Coordinates> {
-            val xRange = nb.first.x - 1..nb.first.x + nb.second.toString().length
+            val xRange = nb.first.x - 1..nb.first.x + nb.second.length
             val yRange = nb.first.y - 1..nb.first.y + 1
             return yRange
                 .map { y -> xRange.map { x -> Coordinates(x, y) } }
